@@ -5,7 +5,7 @@ class OS{
         this.menuOpened = false;
     }
     _Start() {
-        document.querySelector(".os").style.display = "block"
+        document.querySelector(".os").style.display = "flex"
         document.querySelector(".terminal").style.display = "none"
         document.addEventListener("mouseup", (e) => {
             if(e.button == 0) {

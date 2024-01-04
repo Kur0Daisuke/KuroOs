@@ -256,3 +256,4 @@ class Terminal{
         this.terminalDiv.style.display = "none";
     }
 }
+
