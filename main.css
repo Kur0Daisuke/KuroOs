@@ -10,6 +10,7 @@
     /* color: var(--iconColor); */
     color: seashell;
     font-family: terminal;
+    user-select: none;
 }
 
 :root{
@@ -161,7 +162,9 @@
     content: '';
     animation: cursor 1s infinite;
 }
-
+.selected{
+    background: blue;
+}
 .cursor.stop::after{
     display: none;
 }
