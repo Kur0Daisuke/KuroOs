@@ -7,7 +7,8 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    color: var(--iconColor);
+    /* color: var(--iconColor); */
+    color: seashell;
     font-family: terminal;
 }
 
