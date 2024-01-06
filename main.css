@@ -7,116 +7,134 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-}
-
-body{
-    display: flex;
-    justify-content: center;
+    color: var(--iconColor);
     font-family: terminal;
-    align-items: center;
-    background: black;
 }
 
-.os{
-    position: absolute;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgb(142, 178, 190);
-    color: rgb(247, 232, 206);
-    pointer-events: none;
-    display: none;
-    z-index: 10000;
-    overflow: hidden;
+:root{
+    --bg:#000000;
+    --iconColor:#0F6292;
+    --selectColor:#16FF00;
+    --highlightColor:#FFED00;
+    --taskBarColor:rgba(255, 255, 255, 0.1);
 }
-.row{
-    border: 1px solid blanchedalmond;
-}
-.menu.disabled{
-    color: rgb(77, 92, 92);
-}
-.rightClickMenu{
-    position: absolute;
-    top: 0;
-    left: 0;
-    background: darkslategrey;
-    z-index: 100000;
-    padding: 5px;
-    display: none;
-    color: blanchedalmond;
-    border: 1px solid blanchedalmond;
-}
-.Dropdown:hover > .MenuChilds{
-    display: block;
-} 
-.MenuChilds{
-    display: none;
-    position: absolute;
-    left: 100%;
-    margin-top: -20%;
-    padding-left: 5px;
-    text-align: left;
-    background: darkslategray;
-    border: 1px solid blanchedalmond;
-}
-.upper{
-    display: grid;
-    grid-template-columns: auto auto auto auto auto auto auto auto auto auto auto;
-    grid-template-rows: auto auto auto auto auto auto auto auto auto auto auto auto auto auto auto auto auto auto auto auto auto auto;
-    width: 100%;
-    height: 90%;
+
+.desktop{
+    gap: 10px;
+    width: 100dvw;
+    height: 100dvh;
+    background: var(--bg);
     padding: 10px;
-    background: rgb(80, 105, 105);
 }
-.folder{
+.desktopLeft{
+    padding-left: 60px;
+}
+.desktopRight{
+    padding-right: 60px;
+}
+.desktopTop{
+    padding-top: 60px;
+}
+.desktopBottom{
+    padding-bottom: 60px;
+}
+.folderSpace{
     display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    font-size: 10px;
-    width: 50px;
-    height: 50px;
-    z-index: 100000;
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 10px;
 }
-.folder:hover{
-    border: 1px solid black;
+.folderSpace>.folder{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 75px;
+    aspect-ratio: 1/1;
+    justify-content: center;
+    padding: 10px 0;
+    gap: 5px;
+    transition: 0.5s ease-in-out;
+    border-radius: 10px;
+    /* border: 1px solid white; */
+}
+.folderSpace>.folder:hover{
+    background: var(--taskBarColor);
     cursor: pointer;
 }
-.folder:hover{
-    background: skyblue;
-    border: 0.5px solid blanchedalmond;
+.folderSpace>.folder>ion-icon{
+    font-size: 2.25em;
 }
-.folderIcon{
-    font-size: 30px;
-}
-.taskbar{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: row;
+.folderSpace>.folder>p{
     width: 100%;
-    height: 10%;
-    gap: 10px;
-    background: rgb(79, 74, 47);
+    padding: 0 5px;
+    text-align: center;
+    font-size: 0.75em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
-.taskFolder.opened::after{
-    content: '';
-    position: absolute;
-    margin-top: 3%;
-    margin-left: -3%;
-    width: 30px;
-    height: 10px;
-    background: rgb(255, 245, 231);
+
+.taskBar{
+    position: fixed;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--taskBarColor);
+    transition: 0.5s ease-in-out;
 }
+.taskBar>.recentTray{
+    width: 100%;
+    height: 100%;
+}
+.taskBar ion-icon{
+    color: var(--iconColor);
+    font-size: 1.75em;
+    padding: 10px;
+    transition: 0.5s ease-in-out;
+}
+.taskBar ion-icon:hover{
+    background: var(--taskBarColor);
+    color: var(--bg);
+    cursor: pointer;
+}
+.taskBar>ion-icon{
+    background: var(--iconColor);
+    color: var(--bg);
+}
+.recentTray>ion-icon.opened{
+    border-bottom: 3px solid var(--iconColor);
+}
+.taskBar.taskBarBottom{
+    bottom:0;
+    height: 50px;
+    width: 100dvw;
+}
+.taskBar.taskBarTop{
+    top:0;
+    height: 50px;
+    width: 100dvw;
+}
+.taskBar.taskBarLeft{
+    top: 0;
+    left:0;
+    height: 100dvh;
+    width: 50px;
+
+    flex-direction: column;
+}
+.taskBar.taskBarRight{
+    top:0;
+    right:0;
+    height: 100dvh;
+    width: 50px;
+    flex-direction: column;
+}
+
+/* ____ TERMINAL ____ */
 
 .terminal {
     /* to change  */
-    display: none;
+    /* display: none; */
     
     position: absolute;
     top: 0;
@@ -126,6 +144,7 @@ body{
     padding: 10px;
     overflow-y: scroll;
     color: white;
+    background: black;
 }
 
 .cmd{
@@ -148,5 +167,5 @@ body{
 
 @keyframes cursor{
     from {content:''}
-    to {content: '━'}
+    to {content: '|'}
 }
