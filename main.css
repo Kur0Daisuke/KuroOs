@@ -147,6 +147,7 @@
     overflow-y: scroll;
     color: white;
     background: black;
+    white-space: pre;
 }
 
 .cmd{
@@ -155,7 +156,9 @@
 }
 .input{
     display: flex;
-    flex-direction: row;
+}
+.cursor{
+    width: 1px;
 }
 
 .cursor::after{
@@ -171,5 +174,5 @@
 
 @keyframes cursor{
     from {content:''}
-    to {content: '|'}
+    to {content: '▃'}
 }

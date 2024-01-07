@@ -9,8 +9,10 @@ class Terminal{
     constructor(terminalDiv, ActionLibrary) {
         Terminal._ActionLibrary = ActionLibrary;
         Terminal._terminalDiv = terminalDiv;
-        Terminal.ShowMessage("Kuro Os [Version 0.1] <br>All credits goes to the og operating systems <br><br>")
+        Terminal.ShowMessage("Kuro Os [Version 0.1]<br>All credits goes to the og operating systems <br><br>")
         Terminal.Input();
+
+        document.title = "C:\\Users\\user\\cmd.exe";
     }
     static insertAtIndex(str, substring, index) {
         return str.slice(0, index) + substring + str.slice(index);
@@ -19,18 +21,24 @@ class Terminal{
         Terminal._terminalDiv.innerHTML += message;
     }
     // __ ENTER KEY HANDLER ___
-    static CheckCommand(command, cursorPosition) {
+    static CheckCommand(command, cursorPosition, div) {
+        let parameterI = command.length;
+        for(let x = 0; x < command.length; x++) {
+            if(command[x] == " ") {parameterI = x; break;}
+        }
         for(let i = 0; i < Terminal._ActionLibrary.length; i++) {
-            if(Terminal._ActionLibrary[i].parameterAllowed && command.includes(Terminal._ActionLibrary[i].key+" ")) {
-                Terminal._ActionLibrary[i].action.Start(command.slice(Terminal._ActionLibrary[i].key.length+1,command.length));
-               return
-            }else if(command == Terminal._ActionLibrary[i].key && !Terminal._ActionLibrary[i].parameterAllowed){
-                Terminal._ActionLibrary[i].action.Start();
-                return
+            if(Terminal._ActionLibrary[i].parameterAllowed) {
+                if(command.slice(0, parameterI) == Terminal._ActionLibrary[i].key) {
+                    Terminal._ActionLibrary[i].action.Start(command.slice(parameterI+1,command.length), div);
+                    return;
+                }
+            }else if(command.slice(0, parameterI) == Terminal._ActionLibrary[i].key && !Terminal._ActionLibrary[i].parameterAllowed){
+                Terminal._ActionLibrary[i].action.Start("", div);
+                break;
             }
         }
         Terminal._CommandHistory.push({command: command, cursorPosition: cursorPosition});
-        Terminal.ShowMessage(`'${command}' is not recognized as an internal or external command, operable program or batch file`);
+        Terminal.ShowMessage(`'${command.slice(0, parameterI)}' is not recognized as an internal or external command, operable program or batch file<br><br>`);
         Terminal.Input();
     }
     // __ STOP THE OPERATION
@@ -62,8 +70,11 @@ class Terminal{
                 break;
         }
     }
+    static IncreaseHeight() {
+        Terminal._terminalDiv.style.height = `${Terminal._terminalDiv.style.height+150}%`
+    }
     // ____ INPUT LINE ____
-    static Input(autoCommand=``) {
+    static Input(params={autoCommand:``}) {
         //____ ADDING INPUT DIV _____
         let cmd = document.createElement("div");
         cmd.classList.add("cmd");
@@ -72,10 +83,11 @@ class Terminal{
         `
         let inputBox = cmd.querySelector(".input");
         Terminal._terminalDiv.appendChild(cmd);
+        cmd.scrollIntoView(false);
 
         //____ SECONDARY VARIABLES ____
         let cursorPosition = 0;
-        let command = autoCommand;
+        let command = params.autoCommand;
         let ToAppend = "";
         let currentHistory = Terminal._CommandHistory.length-1;
         let selecting = false;
@@ -91,7 +103,7 @@ class Terminal{
         }
         const AddCursor = () => {
             ToAppend = Terminal.insertAtIndex(command, `<div class="cursor"></div>`, cursorPosition)
-            inputBox.innerHTML = ToAppend;
+            inputBox.innerHTML = `${ToAppend}`;
         }
         const eraseText = () => {
             let [i,x] = GetSelected();
@@ -131,7 +143,7 @@ class Terminal{
         }
         const SelectedHandler = () => {
             let [i,x] = GetSelected();
-            ToAppend = command.slice(0, i) + `<div class="selected">` + command.slice(i, x) + `</div>` + command.slice(x, command.length);
+            ToAppend = command.slice(0, i) + `<p class="selected">` + command.slice(i, x) + `</p>` + command.slice(x, command.length);
             // AddCursor();
             inputBox.innerHTML = ToAppend
         }
@@ -184,9 +196,13 @@ class Terminal{
                         startPosition = 0;
                         cursorPosition = command.length;
                         selected = true;
-                        ToAppend = `<div class="selected">` + command + `</div>`;
+                        ToAppend = `<p class="selected">` + command + `</p>`;
                         inputBox.innerHTML = ToAppend
                     }else appendText(e.key);
+                    break;
+                case " ":
+                    appendText(`\u0020`);
+                    break;
                 //___ Ignore Characters __
                 case "Enter":
                     break;
@@ -201,11 +217,10 @@ class Terminal{
         }
         // __ Pressing Handler ___
         const keyup = (e) => {
-            console.log(e.key)
             switch(e.key){
                 case "Enter":
                     inputBox.innerHTML = command;
-                    Terminal.CheckCommand(command, cursorPosition)
+                    Terminal.CheckCommand(command, cursorPosition, inputBox)
                     window.removeEventListener("keydown", keydown)
                     window.removeEventListener("keyup", keyup)
                     break;
@@ -218,7 +233,7 @@ class Terminal{
 
         //__ Assign auto command ___
         (() => {
-            inputBox.innerHTML += autoCommand;
+            inputBox.innerHTML += params.autoCommand;
         })();
         AddCursor();
 
