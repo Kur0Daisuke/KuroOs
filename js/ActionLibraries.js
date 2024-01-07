@@ -45,5 +45,13 @@ const ActionLibrary = [
             finish();
             // Terminal.ShowMessage(`Available Commands <br> ${() =>{for(let x= 0; x<this.length)}}`)
         })
+    },
+    {
+        key: "date",
+        parameterAllowed: false,
+        action: new Action(({callback, finish, parameter}) => {
+            Terminal.ShowMessage(new Date())
+            finish();
+        })
     }
 ]

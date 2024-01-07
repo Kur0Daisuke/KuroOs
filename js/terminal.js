@@ -9,6 +9,7 @@ class Terminal{
     constructor(terminalDiv, ActionLibrary) {
         Terminal._ActionLibrary = ActionLibrary;
         Terminal._terminalDiv = terminalDiv;
+        Terminal.ShowMessage("Kuro Os [Version 0.1] <br>All credits goes to the og operating systems <br><br>")
         Terminal.Input();
     }
     static insertAtIndex(str, substring, index) {
@@ -29,7 +30,7 @@ class Terminal{
             }
         }
         Terminal._CommandHistory.push({command: command, cursorPosition: cursorPosition});
-        Terminal.ShowMessage("Error: Not A Command");
+        Terminal.ShowMessage(`'${command}' is not recognized as an internal or external command, operable program or batch file`);
         Terminal.Input();
     }
     // __ STOP THE OPERATION
@@ -200,6 +201,7 @@ class Terminal{
         }
         // __ Pressing Handler ___
         const keyup = (e) => {
+            console.log(e.key)
             switch(e.key){
                 case "Enter":
                     inputBox.innerHTML = command;
@@ -210,6 +212,7 @@ class Terminal{
                 case "Shift":
                     selecting = false;
                     selected = true;
+                    break;
             }
         }
 
