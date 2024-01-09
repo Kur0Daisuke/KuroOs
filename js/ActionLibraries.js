@@ -5,9 +5,9 @@ class Action{
     constructor(main) {
         this.Main = main;
     }
-    Done() {
+    Done(doNotScroll) {
         Action.IsOperating = false;
-        Terminal.Input();
+        Terminal.Input({autoCommand: "", doNotScroll});
     }
     Start(parameter="", div) {
         Action.IsOperating = true;
@@ -20,8 +20,8 @@ class Action{
             callback: () => {
                 this.Start()
             },
-            finish: () => {
-                this.Done();
+            finish: (doNotScroll=false) => {
+                this.Done(doNotScroll);
             }, 
             parameter,
             div
@@ -59,9 +59,10 @@ const ActionLibrary = [
         key: "color",
         parameterAllowed: true,
         action: new Action((params) => {
-            Terminal.IncreaseHeight()
+            // Terminal.IncreaseHeight()
             params.div.scrollIntoView(true)
-            Terminal.ShowMessage(`
+            if(params.parameter == "?") {
+                Terminal.ShowMessage(`
 Sets the default console foreground and background colors.
 
 COLOR [attr]
@@ -72,14 +73,12 @@ Color attributes are specified by TWO hex digits -- the first
 corresponds to the background; the second the foreground.  Each digit
 can be any of the following values:
             
-    0 = Black       8 = Gray
-    1 = Blue        9 = Light Blue
-    2 = Green       A = Light Green
-    3 = Aqua        B = Light Aqua
-    4 = Red         C = Light Red
-    5 = Purple      D = Light Purple
-    6 = Yellow      E = Light Yellow
-    7 = White       F = Bright White
+    0 = Black       6 = Yellow      
+    1 = Blue        7 = White
+    2 = Green       8 = Gray
+    3 = Aqua        9 = Light Blue
+    4 = Red         10 = Light Green
+    5 = Purple     
             
 If no argument is given, this command restores the color to what it was
 when CMD.EXE started.  This value either comes from the current console
@@ -90,9 +89,13 @@ The COLOR command sets ERRORLEVEL to 1 if an attempt is made to execute
 the COLOR command with a foreground and background color that are the
 same.
             
-Example: "COLOR fc" produces light red on bright white
-            `)
-            // params.finish();
+Example: "COLOR 25" produces purple on bright white
+                `)
+                params.finish();
+                return;
+            }
+            params.finish();
+            document.querySelector(':root').style.setProperty('--terminalColor', TerminalColors[parseInt(params.parameter)])
         })
     }
 ]

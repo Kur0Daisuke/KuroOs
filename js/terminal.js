@@ -38,7 +38,7 @@ class Terminal{
             }
         }
         Terminal._CommandHistory.push({command: command, cursorPosition: cursorPosition});
-        Terminal.ShowMessage(`'${command.slice(0, parameterI)}' is not recognized as an internal or external command, operable program or batch file<br><br>`);
+        Terminal.ShowMessage(`'${command.slice(0, parameterI)}' is not recognized as an internal or external command,<br> operable program or batch file<br><br>`);
         Terminal.Input();
     }
     // __ STOP THE OPERATION
@@ -74,16 +74,16 @@ class Terminal{
         Terminal._terminalDiv.style.height = `${Terminal._terminalDiv.style.height+150}%`
     }
     // ____ INPUT LINE ____
-    static Input(params={autoCommand:``}) {
+    static Input(params={autoCommand:``, doNotScroll: false}) {
         //____ ADDING INPUT DIV _____
         let cmd = document.createElement("div");
         cmd.classList.add("cmd");
         cmd.innerHTML = `
-            <span><:C/Users/user></span>&nbsp;<div class="input"></div></div>
+            <span class="location"><:C/Users/user></span>&nbsp;<div class="input"></div></div>
         `
         let inputBox = cmd.querySelector(".input");
         Terminal._terminalDiv.appendChild(cmd);
-        cmd.scrollIntoView(false);
+        if(!params.doNotScroll) cmd.scrollIntoView(false);
 
         //____ SECONDARY VARIABLES ____
         let cursorPosition = 0;
@@ -92,7 +92,6 @@ class Terminal{
         let currentHistory = Terminal._CommandHistory.length-1;
         let selecting = false;
         let selected = false;
-        let selectedCharacters = [];
         let startPosition = 0;
 
         //___ HANDLERS ____

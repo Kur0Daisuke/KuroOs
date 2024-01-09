@@ -33,6 +33,25 @@ const animals = [
     "Chimpanzee"
 ]
 
+const TerminalColors = [
+    "black",
+    "blue",
+    "green",
+    "aqua",
+    "red",
+    "purple",
+    "yellow",
+    "white",
+    "gray",
+    "lightblue",
+    "lightgreen",
+    "lightaqua",
+    "lightred",
+    "lightpurple",
+    "lightyellow",
+    "brightwhite"
+]
+
 let KeyPressed = false;
 document.addEventListener("keydown", (e) => {
     if (e.key == "space") KeyPressed = true;
