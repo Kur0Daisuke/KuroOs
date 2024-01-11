@@ -1,3 +1,8 @@
+/**
+ * @class
+ * @description Action of what a command will do
+ * @param main - Callback Function
+ */
 class Action{
     static IsOperating = false;
     static ForceStop = false;
@@ -15,7 +20,6 @@ class Action{
             Action.ForceStop = false;
             return;
         }
-        console.log(parameter)
         this.Main({
             callback: () => {
                 this.Start()
@@ -29,7 +33,18 @@ class Action{
     }
 }
 
-const ActionLibrary = [
+class ACTION_LIBRARY {
+    Actions = [];
+
+    UpdateLibrary(update) {
+        this.Actions = update;
+    }
+    get Actions(){
+        return this.Actions
+    }
+}
+const ActionLibrary = new ACTION_LIBRARY();
+ActionLibrary.UpdateLibrary([
     {
         key: "echo",
         parameterAllowed: true,
@@ -42,10 +57,10 @@ const ActionLibrary = [
         key: "/help",
         parameterAllowed: false,
         action: new Action((params) => {
-            console.log(this)
+            Terminal.ShowMessage(`Available Commands <br> ${ActionLibrary.Actions.map(e => `  ${e.key} - ${e.description == undefined ? "" : e.description} <br>`).join("")}<br>`)
             params.finish();
-            // Terminal.ShowMessage(`Available Commands <br> ${() =>{for(let x= 0; x<this.length)}}`)
-        })
+        }),
+        description: "this command"
     },
     {
         key: "date",
@@ -91,11 +106,20 @@ same.
             
 Example: "COLOR 25" produces purple on bright white
                 `)
+                    params.finish();
+                    return;
+                }
                 params.finish();
-                return;
-            }
+                document.querySelector(':root').style.setProperty('--terminalColor', TerminalColors[parseInt(params.parameter)])
+        })
+    },
+    {
+        key: "/install",
+        parameterAllowed: false,
+        action: new Action(async (params) => {
+            let input = await Terminal.GetUserInput("Type your name");
+            Terminal.ShowMessage(input)
             params.finish();
-            document.querySelector(':root').style.setProperty('--terminalColor', TerminalColors[parseInt(params.parameter)])
         })
     }
-]
+])

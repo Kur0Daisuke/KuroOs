@@ -1,7 +1,8 @@
 /** 
     * @class
     * @description Terminal Class. Used for the terminal Page
-    * @param {Object} terminalDiv - The terminal Div
+    * @constructor
+    * @param {Object} ()terminalDiv - The terminal Div
     * @param {Object} ActionLibrary - Library or Object of commands
 */
 
@@ -14,15 +15,26 @@ class Terminal{
     static _CopyHistory = "";
 
     constructor(terminalDiv, ActionLibrary) {
-        Terminal._ActionLibrary = ActionLibrary;
+        Terminal._ActionLibrary = ActionLibrary.Actions;
         Terminal._terminalDiv = terminalDiv;
         Terminal.ShowMessage("Kuro Os [Version 0.1]<br>All credits goes to the og operating systems <br><br>")
         Terminal.Input();
 
         document.title = "C:\\Users\\user\\cmd.exe";
+        window.addEventListener("keydown", Terminal._TerminalKeyUpListener);
+        window.addEventListener("keyup", Terminal._TerminalKeyUpListener);
     }
     static GetUserInput(message) {
-        Terminal.ShowMessage(message);
+        return new Promise((res) => {
+            Terminal.ShowMessage(message);
+            let inputBox = document.createElement('div');
+            inputBox.className = "input";
+
+            Terminal._terminalDiv.appendChild(inputBox);
+            Terminal.InputBoxHandler({inputBox, callback: (name) => {
+                res(name);
+            }});
+        })
     }
     static insertAtIndex(str, substring, index) {
         return str.slice(0, index) + substring + str.slice(index);
@@ -30,12 +42,18 @@ class Terminal{
     static ShowMessage(message) {
         Terminal._terminalDiv.innerHTML += message;
     }
+    static ReturnError(command, cursorPosition, parameterI) {
+        Terminal._CommandHistory.push({command: command, cursorPosition: cursorPosition});
+        Terminal.ShowMessage(`'${command.slice(0, parameterI)}' is not recognized as an internal or external command,<br> operable program or batch file<br><br>`);
+        Terminal.Input();
+    }
     // __ ENTER KEY HANDLER ___
-    static CheckCommand(command, cursorPosition, div) {
+    static CheckCommand(command, cursorPosition, div, callback) {
         let parameterI = command.length;
         for(let x = 0; x < command.length; x++) {
             if(command[x] == " ") {parameterI = x; break;}
         }
+        console.log(Terminal._ActionLibrary)
         for(let i = 0; i < Terminal._ActionLibrary.length; i++) {
             if(Terminal._ActionLibrary[i].parameterAllowed) {
                 if(command.slice(0, parameterI) == Terminal._ActionLibrary[i].key) {
@@ -44,12 +62,10 @@ class Terminal{
                 }
             }else if(command.slice(0, parameterI) == Terminal._ActionLibrary[i].key && !Terminal._ActionLibrary[i].parameterAllowed){
                 Terminal._ActionLibrary[i].action.Start("", div);
-                break;
+                return;
             }
         }
-        Terminal._CommandHistory.push({command: command, cursorPosition: cursorPosition});
-        Terminal.ShowMessage(`'${command.slice(0, parameterI)}' is not recognized as an internal or external command,<br> operable program or batch file<br><br>`);
-        Terminal.Input();
+        callback(command, cursorPosition, parameterI);
     }
     // __ STOP THE OPERATION
     static _StopAction() {
@@ -59,7 +75,7 @@ class Terminal{
         Terminal.Input();
     }
     // KEY LISTENERS FOR CONTROL + C
-    static _StopKeyUpListener(e) {
+    static _TerminalKeyUpListener(e) {
         switch(e.key){
             case "c":
                 if(Terminal._controlPressed && Terminal._cpressed && Action.IsOperating) Terminal._StopAction();
@@ -70,7 +86,7 @@ class Terminal{
                 break;
         }
     }
-    static _StopKeyDownListener(e) {
+    static _TerminalKeyUpListener(e) {
         switch(e.key){
             case "Control":
                 Terminal._controlPressed = true;
@@ -83,18 +99,7 @@ class Terminal{
     static IncreaseHeight() {
         Terminal._terminalDiv.style.height = `${Terminal._terminalDiv.style.height+150}%`
     }
-    // ____ INPUT LINE ____
-    static Input(params={autoCommand:``, doNotScroll: false}) {
-        //____ ADDING INPUT DIV _____
-        let cmd = document.createElement("div");
-        cmd.classList.add("cmd");
-        cmd.innerHTML = `
-            <span class="location"><:C/Users/user></span>&nbsp;<div class="input"></div></div>
-        `
-        let inputBox = cmd.querySelector(".input");
-        Terminal._terminalDiv.appendChild(cmd);
-        if(!params.doNotScroll) cmd.scrollIntoView(false);
-
+    static InputBoxHandler({inputBox, params={autoCommand:``, doNotScroll: false}, callback=this.ReturnError}) {
         //____ SECONDARY VARIABLES ____
         let cursorPosition = 0;
         let command = params.autoCommand;
@@ -229,7 +234,7 @@ class Terminal{
             switch(e.key){
                 case "Enter":
                     inputBox.innerHTML = command;
-                    Terminal.CheckCommand(command, cursorPosition, inputBox)
+                    Terminal.CheckCommand(command, cursorPosition, inputBox, callback)
                     window.removeEventListener("keydown", keydown)
                     window.removeEventListener("keyup", keyup)
                     break;
@@ -249,7 +254,19 @@ class Terminal{
         //init the event listeners
         window.addEventListener("keydown", keydown);
         window.addEventListener("keyup", keyup)
-        window.addEventListener("keydown", Terminal._StopKeyDownListener);
-        window.addEventListener("keyup", Terminal._StopKeyUpListener);
+    }
+    // ____ INPUT LINE ____
+    static Input(params={autoCommand:``, doNotScroll: false}) {
+        //____ ADDING INPUT DIV _____
+        let cmd = document.createElement("div");
+        cmd.classList.add("cmd");
+        cmd.innerHTML = `
+            <span class="location"><:C/Users/user></span>&nbsp;<div class="input"></div></div>
+        `
+        Terminal._terminalDiv.appendChild(cmd);
+        let inputBox = cmd.querySelector(".input");
+        
+        if(!params.doNotScroll) cmd.scrollIntoView(false);
+        Terminal.InputBoxHandler({inputBox, params})
     }
 }
