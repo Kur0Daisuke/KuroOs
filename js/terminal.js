@@ -1,3 +1,10 @@
+/** 
+    * @class
+    * @description Terminal Class. Used for the terminal Page
+    * @param {Object} terminalDiv - The terminal Div
+    * @param {Object} ActionLibrary - Library or Object of commands
+*/
+
 class Terminal{
     static _terminalDiv;
     static _controlPressed = false;
@@ -13,6 +20,9 @@ class Terminal{
         Terminal.Input();
 
         document.title = "C:\\Users\\user\\cmd.exe";
+    }
+    static GetUserInput(message) {
+        Terminal.ShowMessage(message);
     }
     static insertAtIndex(str, substring, index) {
         return str.slice(0, index) + substring + str.slice(index);

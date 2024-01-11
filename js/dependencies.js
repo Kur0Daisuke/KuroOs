@@ -51,11 +51,3 @@ const TerminalColors = [
     "lightyellow",
     "brightwhite"
 ]
-
-let KeyPressed = false;
-document.addEventListener("keydown", (e) => {
-    if (e.key == "space") KeyPressed = true;
-})
-document.addEventListener("keyup", (e) => {
-    if (e.key == "space") KeyPressed = false;
-})
