@@ -17,24 +17,20 @@ class Terminal{
     constructor(terminalDiv, ActionLibrary) {
         Terminal._ActionLibrary = ActionLibrary.Actions;
         Terminal._terminalDiv = terminalDiv;
-        Terminal.ShowMessage("Kuro Os [Version 0.1]<br>All credits goes to the og operating systems <br><br>")
+        Terminal.ShowMessage(`/Kuro Os [Version 0.1]<br>All credits goes to the og operating systems <br><br>`)
         Terminal.Input();
 
         document.title = "C:\\Users\\user\\cmd.exe";
-        window.addEventListener("keydown", Terminal._TerminalKeyUpListener);
+        window.addEventListener("keydown", Terminal._TerminalKeyDownListener);
         window.addEventListener("keyup", Terminal._TerminalKeyUpListener);
     }
-    static GetUserInput(message) {
-        return new Promise((res) => {
-            Terminal.ShowMessage(message);
-            let inputBox = document.createElement('div');
-            inputBox.className = "input";
+    static GetUserInput(message, callback= () => {}) {
+        Terminal.ShowMessage(message);
+        let inputBox = document.createElement('div');
+        inputBox.className = "input";
 
-            Terminal._terminalDiv.appendChild(inputBox);
-            Terminal.InputBoxHandler({inputBox, callback: (name) => {
-                res(name);
-            }});
-        })
+        Terminal._terminalDiv.appendChild(inputBox);
+        Terminal.InputBoxHandler({inputBox, callback});
     }
     static insertAtIndex(str, substring, index) {
         return str.slice(0, index) + substring + str.slice(index);
@@ -43,7 +39,6 @@ class Terminal{
         Terminal._terminalDiv.innerHTML += message;
     }
     static ReturnError(command, cursorPosition, parameterI) {
-        Terminal._CommandHistory.push({command: command, cursorPosition: cursorPosition});
         Terminal.ShowMessage(`'${command.slice(0, parameterI)}' is not recognized as an internal or external command,<br> operable program or batch file<br><br>`);
         Terminal.Input();
     }
@@ -53,7 +48,6 @@ class Terminal{
         for(let x = 0; x < command.length; x++) {
             if(command[x] == " ") {parameterI = x; break;}
         }
-        console.log(Terminal._ActionLibrary)
         for(let i = 0; i < Terminal._ActionLibrary.length; i++) {
             if(Terminal._ActionLibrary[i].parameterAllowed) {
                 if(command.slice(0, parameterI) == Terminal._ActionLibrary[i].key) {
@@ -63,8 +57,13 @@ class Terminal{
             }else if(command.slice(0, parameterI) == Terminal._ActionLibrary[i].key && !Terminal._ActionLibrary[i].parameterAllowed){
                 Terminal._ActionLibrary[i].action.Start("", div);
                 return;
+            }else if(command.replace(/\s/g, "") == "") {
+                Terminal.Input();
+                return;
             }
         }
+
+        Terminal._CommandHistory.push({command: command, cursorPosition: cursorPosition});
         callback(command, cursorPosition, parameterI);
     }
     // __ STOP THE OPERATION
@@ -86,7 +85,7 @@ class Terminal{
                 break;
         }
     }
-    static _TerminalKeyUpListener(e) {
+    static _TerminalKeyDownListener(e) {
         switch(e.key){
             case "Control":
                 Terminal._controlPressed = true;
@@ -138,8 +137,8 @@ class Terminal{
                 command = command.slice(0, i) + textToUpdate + command.slice(x, command.length);
             }else {
                 command = Terminal.insertAtIndex(command, textToUpdate, cursorPosition);
-                cursorPosition++;
             }
+            cursorPosition++;
             selected = false;
             AddCursor()
         }
@@ -148,7 +147,6 @@ class Terminal{
             AddCursor()
         }
         const upateByHistory = () => {
-            console.log(currentHistory)
             command = Terminal._CommandHistory[currentHistory].command;
             cursorPosition = Terminal._CommandHistory[currentHistory].cursorPosition;
             AddCursor();
@@ -158,7 +156,6 @@ class Terminal{
         const SelectedHandler = () => {
             let [i,x] = GetSelected();
             ToAppend = command.slice(0, i) + `<p class="selected">` + command.slice(i, x) + `</p>` + command.slice(x, command.length);
-            // AddCursor();
             inputBox.innerHTML = ToAppend
         }
 
@@ -214,9 +211,6 @@ class Terminal{
                         inputBox.innerHTML = ToAppend
                     }else appendText(e.key);
                     break;
-                case " ":
-                    appendText(`\u0020`);
-                    break;
                 //___ Ignore Characters __
                 case "Enter":
                     break;
@@ -270,3 +264,5 @@ class Terminal{
         Terminal.InputBoxHandler({inputBox, params})
     }
 }
+
+export default Terminal
