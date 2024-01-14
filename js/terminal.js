@@ -1,11 +1,5 @@
-/** 
-    * @class
-    * @description Terminal Class. Used for the terminal Page
-    * @constructor
-    * @param {Object} ()terminalDiv - The terminal Div
-    * @param {Object} ActionLibrary - Library or Object of commands
-*/
-
+/**
+ */
 class Terminal{
     static _terminalDiv;
     static _controlPressed = false;
@@ -14,6 +8,11 @@ class Terminal{
     static _CommandHistory = [{command:"", cursorPosition: 0}];
     static _CopyHistory = "";
 
+    /**
+     * 
+     * @param {*} terminalDiv - points to the main div where the terminal is
+     * @param {*} ActionLibrary - Action Library Class
+     */
     constructor(terminalDiv, ActionLibrary) {
         Terminal._ActionLibrary = ActionLibrary.Actions;
         Terminal._terminalDiv = terminalDiv;
@@ -24,6 +23,18 @@ class Terminal{
         window.addEventListener("keydown", Terminal._TerminalKeyUpListener);
         window.addEventListener("keyup", Terminal._TerminalKeyUpListener);
     }
+    /**
+     * 
+     * @param {*} message 
+     * @returns A new Promise
+     * @description - Creates a input line and returns user input after pressing the Enter key (function must be async)
+     * @example - //inside the action Function 
+     * () => { 
+     *     ...
+     *     await Terminal.GetUserInput() 
+     *     ... 
+     * }
+     */
     static GetUserInput(message) {
         return new Promise((res) => {
             Terminal.ShowMessage(message);
@@ -39,6 +50,17 @@ class Terminal{
     static insertAtIndex(str, substring, index) {
         return str.slice(0, index) + substring + str.slice(index);
     }
+    /**
+     * 
+     * @param {*} message
+     * @description - Emits an message to the terminal
+     * @example  - //inside the action Function 
+     * () => { 
+     *     ...
+     *     Terminal.ShowMessage(..message here..) 
+     *     ... 
+     * }
+     */
     static ShowMessage(message) {
         Terminal._terminalDiv.innerHTML += message;
     }
@@ -256,6 +278,18 @@ class Terminal{
         window.addEventListener("keyup", keyup)
     }
     // ____ INPUT LINE ____
+    /**
+     * 
+     * @param {*} params - {autoCommand, doNotScroll}
+     * @description new input line 
+     * @example -  - //inside the action Function 
+     * () => { 
+     *     ...
+     *     Terminal.Input(.. {"" // <-- autoCommand, false || true // <-- ToScrollOrNot(closed parameter) }) 
+     *     ... 
+     * }
+     * //parameters are not necessary for normal useage
+     */
     static Input(params={autoCommand:``, doNotScroll: false}) {
         //____ ADDING INPUT DIV _____
         let cmd = document.createElement("div");
