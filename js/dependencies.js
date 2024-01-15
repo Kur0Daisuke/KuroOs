@@ -1,4 +1,5 @@
-import Action from '/js/Action.js'
+import Action from './Action.js'
+import Terminal from './terminal.js';
 
 const DEFAULT_ACTIONS = [
     {
@@ -66,14 +67,16 @@ const DEFAULT_ACTIONS = [
                     return;
                 }
                 if(params.parameter == 0) {
-                    let input = Terminal.GetUserInput("Are you really sure that you could see in this pitch black color? (y/n)");
-                    if(input == "y") {
-                        params.finish();
-                        document.querySelector(':root').style.setProperty('--terminalColor', TerminalColors[parseInt(params.parameter)])
-                    }else {
-                        Terminal.ShowMessage(`I'll accept that "No". Wise choice you made Sir.`)
-                        params.finish();
-                    }
+                    Terminal.GetUserInput("Are you really sure that you could see in this pitch black color? (y/n)", 
+                    (input) => {
+                        if(input == "y") {
+                            params.finish();
+                            document.querySelector(':root').style.setProperty('--terminalColor', TerminalColors[parseInt(params.parameter)])
+                        }else {
+                            Terminal.ShowMessage(`I'll accept that "No". Wise choice you made Sir.`)
+                            params.finish();
+                        }
+                    });
                 }else {
                     params.finish();
                     document.querySelector(':root').style.setProperty('--terminalColor', TerminalColors[parseInt(params.parameter)])
@@ -85,11 +88,10 @@ const DEFAULT_ACTIONS = [
         key: "/install",
         parameterAllowed: false,
         action: new Action((params) => {
-            let input =Terminal.GetUserInput("Type your name", () => {
-
+            Terminal.GetUserInput("Type your name", (input) => {
+                Terminal.ShowMessage(input)
+                params.finish();
             });
-            Terminal.ShowMessage(input)
-            params.finish();
         })
     }
 ]
