@@ -16,4 +16,4 @@ this will have features such as
 
 # If you're Interested
 You can use or write your own code and create your own version of the os
-- documentation will be on [here](https://github.com/Kur0Daisuke/KuroOs/blob/main/Documentation.md)
+- documentation will be on [here](https://kuro-os-documentation.netlify.app)
