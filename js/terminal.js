@@ -14,7 +14,7 @@ class Terminal{
      * @param {*} ActionLibrary - Action Library Class
      */
     constructor(terminalDiv, ActionLibrary) {
-        Terminal._ActionLibrary = ActionLibrary.Actions;
+        Terminal._ActionLibrary = ActionLibrary.GetActions;
         Terminal._terminalDiv = terminalDiv;
         Terminal.ShowMessage(`/Kuro Os [Version 0.1]<br>All credits goes to the og operating systems <br><br>`)
         Terminal.Input();

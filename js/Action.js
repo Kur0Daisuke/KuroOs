@@ -1,3 +1,5 @@
+import Terminal from "./terminal.js";
+
 /**
  * @class
  * @description Action of what a command will do
