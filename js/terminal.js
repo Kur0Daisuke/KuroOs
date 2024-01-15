@@ -23,12 +23,6 @@ class Terminal{
         window.addEventListener("keydown", Terminal._TerminalKeyDownListener);
         window.addEventListener("keyup", Terminal._TerminalKeyUpListener);
     }
-<<<<<<< HEAD
-    static GetUserInput(message, callback= () => {}) {
-        Terminal.ShowMessage(message);
-        let inputBox = document.createElement('div');
-        inputBox.className = "input";
-=======
     /**
      * 
      * @param {*} message 
@@ -41,12 +35,10 @@ class Terminal{
      *     ... 
      * }
      */
-    static GetUserInput(message) {
-        return new Promise((res) => {
-            Terminal.ShowMessage(message);
-            let inputBox = document.createElement('div');
-            inputBox.className = "input";
->>>>>>> 69fdb4cc190549a710911faa48766127f2c6da76
+    static GetUserInput(message, callback= () => {}) {
+        Terminal.ShowMessage(message);
+        let inputBox = document.createElement('div');
+        inputBox.className = "input";
 
         Terminal._terminalDiv.appendChild(inputBox);
         Terminal.InputBoxHandler({inputBox, callback});
