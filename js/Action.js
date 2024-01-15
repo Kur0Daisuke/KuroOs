@@ -2,9 +2,19 @@ import Terminal from "./terminal.js";
 
 /**
  * @class
- * @description Action of what a command will do
- * @param main - Callback Function
- */
+ * @description Action after the command is entered
+ * @param {function} main - Callback Function
+ * @param {Object} params - parameters such as finish() and parameter
+ * @param {function} params.callback - callback function to recall the operation
+ * @param {function} params.finish - finish the operation
+ * @param {string} params.parameter - command parameter
+ * @param {HTMLElement} params.div - beta test (idek what this does)
+ * 
+ * @example - Check the Action Format first
+ * action: new Action((params) => {
+ *      ... // do some magic here
+ * })
+*/
 class Action{
     static IsOperating = false;
     static ForceStop = false;

@@ -25,13 +25,16 @@ class Terminal{
     }
     /**
      * 
-     * @param {*} message 
-     * @returns A new Promise
-     * @description - Creates a input line and returns user input after pressing the Enter key (function must be async)
-     * @example - //inside the action Function 
+     * @param {*} message
+     * @param {function} callback
+     * @param {string} input - User input
+     * @description - Creates a input line and returns user input after pressing the Enter key
+     * @example
      * () => { 
      *     ...
-     *     await Terminal.GetUserInput() 
+     *     Terminal.GetUserInput("__YOUR MESSAGE TO BE EMITTED__", function (input) {
+     *          // __ continue the program __
+     *     }) 
      *     ... 
      * }
      */
@@ -50,7 +53,7 @@ class Terminal{
      * 
      * @param {*} message
      * @description - Emits an message to the terminal
-     * @example  - //inside the action Function 
+     * @example
      * () => { 
      *     ...
      *     Terminal.ShowMessage(..message here..) 
@@ -276,7 +279,7 @@ class Terminal{
      * 
      * @param {*} params - {autoCommand, doNotScroll}
      * @description new input line 
-     * @example -  - //inside the action Function 
+     * @example
      * () => { 
      *     ...
      *     Terminal.Input(.. {"" // <-- autoCommand, false || true // <-- ToScrollOrNot(closed parameter) }) 
