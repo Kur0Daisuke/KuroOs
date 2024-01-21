@@ -1,5 +1,5 @@
-import Action from './Action.js'
-import Terminal from './terminal.js';
+import Action from "./Action.js";
+import Terminal from "./terminal.js";
 
 const DEFAULT_ACTIONS = [
     {
@@ -150,4 +150,4 @@ const TerminalColors = [
     "brightwhite"
 ]
 
-export {TerminalColors, DEFAULT_ACTIONS}
+export { TerminalColors, DEFAULT_ACTIONS }
