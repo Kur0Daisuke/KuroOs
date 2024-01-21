@@ -1,10 +1,16 @@
-import Terminal from './Terminal/terminal.js'
-import ActionLibrary from './Terminal/ActionLibrary.js'
-class KuroOs {
-    Terminal = {
-        main: Terminal,
-        ActionLibrary,
+import TerminalClass from './Terminal/terminal.js'
+import ActionLibraryClass from './Terminal/ActionLibrary.js'
+
+class Terminal{
+    static ActionLibrary = ActionLibraryClass;
+    constructor(terminalDiv, ActionLibrary) {
+        this.terminalDiv = terminalDiv;
+        this.terminalClass = new TerminalClass(this.terminalDiv, ActionLibrary);
+    }
+    Destroy() {
+        delete this.terminalClass;
+        this.terminalDiv.remove();
     }
 }
 
-export default KuroOs
+export { Terminal }

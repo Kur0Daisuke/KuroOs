@@ -1,10 +1,18 @@
-import Os from "./node_modules/kuroos"
+import { Terminal } from "./Source/index.js"
+import Db from './Source/Database/main.js';
 
 const terminalDiv = document.querySelector(".terminal");
 
-const ActionLibrary = new Os.ACTION_LIBRARY();
-console.log(ActionLibrary.Actions)
-const terminal = new Os.Terminal(terminalDiv, ActionLibrary);
+const ActionLibrary = new Terminal.ActionLibrary();
+
+const db = new Db()
+
+// const terminal = new Terminal(terminalDiv, ActionLibrary);
+
+setTimeout(() => {
+    // terminal.Destroy()
+}, 3000 )
+
 // const Os = new OS();
 // Os.Load();
 // colorMode | 0 - default | 1 - pastel mode | 2 - Custom Color
