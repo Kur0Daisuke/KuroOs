@@ -22,9 +22,9 @@ class Action{
     constructor(main) {
         this.Main = main;
     }
-    Done(doNotScroll) {
+    Done(Terminal) {
         Action.IsOperating = false;
-        Terminal.Input({autoCommand: "", doNotScroll});
+        Terminal.Input({autoCommand: "", doNotScroll: false});
     }
     Start(parameter="", div) {
         Action.IsOperating = true;
@@ -36,8 +36,8 @@ class Action{
             callback: () => {
                 this.Start()
             },
-            finish: (doNotScroll=false) => {
-                this.Done(doNotScroll);
+            finish: (terminal) => {
+                this.Done(terminal);
             }, 
             parameter,
             div

@@ -22,6 +22,9 @@
     --terminalColor: white;
 }
 
+.os{
+    display: none;
+}
 .desktop{
     gap: 10px;
     width: 100dvw;

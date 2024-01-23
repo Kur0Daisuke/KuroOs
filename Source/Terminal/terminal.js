@@ -1,27 +1,34 @@
 /**
  */
 class Terminal{
-    static _terminalDiv;
-    static _controlPressed = false;
-    static _cpressed = false;
     static _ActionLibrary;
-    static _CommandHistory = [{command:"", cursorPosition: 0}];
-    static _CopyHistory = "";
-
+    #terminalDiv;
+    #controlPressed;
+    #cpressed;
+    #CommandHistory;
+    #CopyHistory;
     /**
      * 
      * @param {*} terminalDiv - points to the main div where the terminal is
      * @param {*} ActionLibrary - Action Library Class
-     */
-    constructor(terminalDiv, ActionLibrary) {
-        Terminal._ActionLibrary = ActionLibrary.GetActions;
-        Terminal._terminalDiv = terminalDiv;
-        Terminal.ShowMessage(`/Kuro Os [Version 0.1]<br>All credits goes to the og operating systems <br><br>`)
-        Terminal.Input();
+    */
+    constructor(terminalDiv) {
+        this.#terminalDiv = terminalDiv;
+        this.#controlPressed = false;
+        this.#cpressed = false;
+        this.#CommandHistory = [{command:"", cursorPosition: 0}];
+        this.#CopyHistory = "";
+
+        this.ShowMessage(`/Kuro Os [Version 0.1]<br>All credits goes to the og operating systems <br><br>`)
+        this.Input();
 
         document.title = "C:\\Users\\user\\cmd.exe";
-        window.addEventListener("keydown", Terminal._TerminalKeyDownListener);
-        window.addEventListener("keyup", Terminal._TerminalKeyUpListener);
+        window.addEventListener("keydown", this._TerminalKeyDownListener);
+        window.addEventListener("keyup", this._TerminalKeyUpListener);
+    }
+    Destroy() {
+        let DestroyEvent = new CustomEvent("OnDestroy", {detail: this});
+        window.dispatchEvent(DestroyEvent)
     }
     /**
      * 
@@ -38,13 +45,13 @@ class Terminal{
      *     ... 
      * }
      */
-    static GetUserInput(message, callback= () => {}) {
-        Terminal.ShowMessage(message);
+    GetUserInput(message, callback= () => {}) {
+        this.ShowMessage(message);
         let inputBox = document.createElement('div');
         inputBox.className = "input";
 
-        Terminal._terminalDiv.appendChild(inputBox);
-        Terminal.InputBoxHandler({inputBox, callback});
+        this.#terminalDiv.appendChild(inputBox);
+        this.InputBoxHandler({inputBox, callback});
     }
     static insertAtIndex(str, substring, index) {
         return str.slice(0, index) + substring + str.slice(index);
@@ -60,27 +67,28 @@ class Terminal{
      *     ... 
      * }
      */
-    static ShowMessage(message) {
-        Terminal._terminalDiv.innerHTML += message;
+    ShowMessage(message) {
+        this.#terminalDiv.innerHTML += message;
     }
-    static ReturnError(command, cursorPosition, parameterI) {
-        Terminal.ShowMessage(`'${command.slice(0, parameterI)}' is not recognized as an internal or external command,<br> operable program or batch file<br><br>`);
-        Terminal.Input();
+    ReturnError(command, cursorPosition, parameterI, terminal) {
+        terminal.ShowMessage(`'${command.slice(0, parameterI)}' is not recognized as an internal or external command,<br> operable program or batch file<br><br>`);
+        terminal.Input();
     }
     // __ ENTER KEY HANDLER ___
-    static CheckCommand(command, cursorPosition, div, callback) {
+    CheckCommand(command, cursorPosition, div, callback) {
         let parameterI = command.length;
         for(let x = 0; x < command.length; x++) {
             if(command[x] == " ") {parameterI = x; break;}
         }
         for(let i = 0; i < Terminal._ActionLibrary.length; i++) {
-            if(Terminal._ActionLibrary[i].parameterAllowed) {
-                if(command.slice(0, parameterI) == Terminal._ActionLibrary[i].key) {
-                    Terminal._ActionLibrary[i].action.Start(command.slice(parameterI+1,command.length), div);
+            let action = Terminal._ActionLibrary[i](this);
+            if(action.parameterAllowed) {
+                if(command.slice(0, parameterI) == action.key) {
+                    action.action.Start(command.slice(parameterI+1,command.length), div);
                     return;
                 }
-            }else if(command.slice(0, parameterI) == Terminal._ActionLibrary[i].key && !Terminal._ActionLibrary[i].parameterAllowed){
-                Terminal._ActionLibrary[i].action.Start("", div);
+            }else if(command.slice(0, parameterI) == action.key && !action.parameterAllowed){
+                action.action.Start("", div);
                 return;
             }else if(command.replace(/\s/g, "") == "") {
                 Terminal.Input();
@@ -88,47 +96,47 @@ class Terminal{
             }
         }
 
-        Terminal._CommandHistory.push({command: command, cursorPosition: cursorPosition});
-        callback(command, cursorPosition, parameterI);
+        this.#CommandHistory.push({command: command, cursorPosition: cursorPosition});
+        callback(command, cursorPosition, parameterI, this);
     }
     // __ STOP THE OPERATION
-    static _StopAction() {
+    _StopAction() {
         Action.ForceStop = true;
         Action.IsOperating = false;
-        Terminal.ShowMessage("Stopped Operation")
-        Terminal.Input();
+        this.ShowMessage("Stopped Operation")
+        this.Input();
     }
     // KEY LISTENERS FOR CONTROL + C
-    static _TerminalKeyUpListener(e) {
+    _TerminalKeyUpListener(e) {
         switch(e.key){
             case "c":
-                if(Terminal._controlPressed && Terminal._cpressed && Action.IsOperating) Terminal._StopAction();
-                Terminal._cpressed = false;
+                if(this.#controlPressed && this.#cpressed && Action.IsOperating) this._StopAction();
+                this.#cpressed = false;
                 break;
             case "Control":
-                Terminal._controlPressed = false;
+                this.#controlPressed = false;
                 break;
         }
     }
-    static _TerminalKeyDownListener(e) {
+    _TerminalKeyDownListener(e) {
         switch(e.key){
             case "Control":
-                Terminal._controlPressed = true;
+                this.#controlPressed = true;
                 break;
             case "c":
-                Terminal._cpressed = true;
+                this.#cpressed = true;
                 break;
         }
     }
-    static IncreaseHeight() {
-        Terminal._terminalDiv.style.height = `${Terminal._terminalDiv.style.height+150}%`
+    IncreaseHeight() {
+        this.#terminalDiv.style.height = `${Terminal._terminalDiv.style.height+150}%`
     }
-    static InputBoxHandler({inputBox, params={autoCommand:``, doNotScroll: false}, callback=this.ReturnError}) {
+    InputBoxHandler({inputBox, params={autoCommand:``, doNotScroll: false}, callback=this.ReturnError}) {
         //____ SECONDARY VARIABLES ____
         let cursorPosition = 0;
         let command = params.autoCommand;
         let ToAppend = "";
-        let currentHistory = Terminal._CommandHistory.length-1;
+        let currentHistory = this.#CommandHistory.length-1;
         let selecting = false;
         let selected = false;
         let startPosition = 0;
@@ -172,10 +180,10 @@ class Terminal{
             AddCursor()
         }
         const upateByHistory = () => {
-            command = Terminal._CommandHistory[currentHistory].command;
-            cursorPosition = Terminal._CommandHistory[currentHistory].cursorPosition;
+            command = this.#CommandHistory[currentHistory].command;
+            cursorPosition = this.#CommandHistory[currentHistory].cursorPosition;
             AddCursor();
-            if(currentHistory-1<0) currentHistory = Terminal._CommandHistory.length-1;
+            if(currentHistory-1<0) currentHistory = this.#CommandHistory.length-1;
             else currentHistory--;
         }
         const SelectedHandler = () => {
@@ -208,27 +216,26 @@ class Terminal{
                     startPosition = cursorPosition;
                     break;
                 case "c":
-                    if(Terminal._controlPressed) {
-                        Terminal._CopyHistory = command.slice(i,x)
+                    if(this.#controlPressed) {
+                        this.#CopyHistory = command.slice(i,x)
                     }else appendText(e.key);
                     break;
                 case "x":
-                    if(Terminal._controlPressed) {
-                        Terminal._CopyHistory = command.slice(i,x)
+                    if(this.#controlPressed) {
+                        this.#CopyHistory = command.slice(i,x)
                         command = command.slice(0, i) + command.slice(x, command.length)
                         AddCursor();
                     }else appendText(e.key);
                     break;
                 case "v":
-                    if(Terminal._controlPressed) {
-                        command = Terminal.insertAtIndex(command, Terminal._CopyHistory, cursorPosition);
-                        cursorPosition+=Terminal._CopyHistory.length;
+                    if(this.#controlPressed) {
+                        command = Terminal.insertAtIndex(command, this.#CopyHistory, cursorPosition);
+                        cursorPosition+=this.#CopyHistory.length;
                         AddCursor();
                     }else appendText(e.key);
-                    console.log(Terminal._CopyHistory)
                     break;
                 case "a":
-                    if(Terminal._controlPressed) {
+                    if(this.#controlPressed) {
                         startPosition = 0;
                         cursorPosition = command.length;
                         selected = true;
@@ -253,7 +260,7 @@ class Terminal{
             switch(e.key){
                 case "Enter":
                     inputBox.innerHTML = command;
-                    Terminal.CheckCommand(command, cursorPosition, inputBox, callback)
+                    this.CheckCommand(command, cursorPosition, inputBox, callback)
                     window.removeEventListener("keydown", keydown)
                     window.removeEventListener("keyup", keyup)
                     break;
@@ -272,7 +279,19 @@ class Terminal{
 
         //init the event listeners
         window.addEventListener("keydown", keydown);
-        window.addEventListener("keyup", keyup)
+        window.addEventListener("keyup", keyup);
+        window.addEventListener("OnDestroy", (e) => {
+            console.log(e.detail)
+            if(e.detail !== this) return;
+            window.removeEventListener("keydown", keydown)
+            window.removeEventListener("keyup", keyup)
+        
+            window.removeEventListener("keydown", this._TerminalKeyDownListener)
+            window.removeEventListener("keyup", this._TerminalKeyUpListener)
+        
+            this.#terminalDiv.remove();
+            delete this;
+        })
     }
     // ____ INPUT LINE ____
     /**
@@ -287,18 +306,18 @@ class Terminal{
      * }
      * //parameters are not necessary for normal useage
      */
-    static Input(params={autoCommand:``, doNotScroll: false}) {
+    Input(params={autoCommand:``, doNotScroll: false}) {
         //____ ADDING INPUT DIV _____
         let cmd = document.createElement("div");
         cmd.classList.add("cmd");
         cmd.innerHTML = `
             <span class="location"><:C/Users/user></span>&nbsp;<div class="input"></div></div>
         `
-        Terminal._terminalDiv.appendChild(cmd);
+        this.#terminalDiv.appendChild(cmd);
         let inputBox = cmd.querySelector(".input");
         
         if(!params.doNotScroll) cmd.scrollIntoView(false);
-        Terminal.InputBoxHandler({inputBox, params})
+        this.InputBoxHandler({inputBox, params})
     }
 }
 

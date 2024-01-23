@@ -1,17 +1,9 @@
 import { Terminal } from "./Source/index.js"
-import Db from './Source/Database/main.js';
 
-const terminalDiv = document.querySelector(".terminal");
+const terminalDiv = document.querySelector(".startTerminal>.terminal");
 
-const ActionLibrary = new Terminal.ActionLibrary();
+const terminal = new Terminal(terminalDiv);
 
-const db = new Db()
-
-// const terminal = new Terminal(terminalDiv, ActionLibrary);
-
-setTimeout(() => {
-    // terminal.Destroy()
-}, 3000 )
 
 // const Os = new OS();
 // Os.Load();
