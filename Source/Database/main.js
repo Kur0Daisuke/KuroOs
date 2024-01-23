@@ -4,13 +4,13 @@ class Db{
         this.DEFAULT_FILE_DATA = [
             { 
                 type: "folder",
-                dirpath: ".",
+                dirpath: "/",
                 name: "This PC", 
                 icon: "desktop-outline"
             },
             { 
                 type: "folder",
-                dirpath: ".This PC.",
+                dirpath: "/This PC/",
                 name: "photos",
                 icon: "images-outline"
             },
@@ -51,7 +51,7 @@ class Db{
             request.onsuccess = (event) => res()
             request.onupgradeneeded = (event) => {
                 this.db = event.target.result;
-                const objectStore = this.db.createObjectStore("Files", { keyPath: "dirpath" });
+                const objectStore = this.db.createObjectStore("Files", { keyPath: "name" });
 
                 objectStore.transaction.oncomplete = (event) => {
                     const customerObjectStore = this.db
@@ -74,13 +74,20 @@ class Db{
                 this.db = event.target.result;
                 const transaction = this.db.transaction(["Files"]);
                 const objectStore = transaction.objectStore("Files");
-                const request = objectStore.getAll(dir);
+                const request = objectStore.getAll();
                 request.onerror = (event) => {
                     // Handle errors!
                 };
                 request.onsuccess = (event) => {
-                    // Do something with the request.result!
-                    res(request.result)
+                    let data = request.result
+                    let result = [];
+                    if(dir == undefined) res(data)
+                    else {
+                        data.forEach((e) => {
+                            if(e.dirpath == dir) result.push(e)
+                        })
+                        res(result)
+                    }
                 };
             }
         })

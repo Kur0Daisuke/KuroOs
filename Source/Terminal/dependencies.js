@@ -103,12 +103,91 @@ const DEFAULT_ACTIONS = [
             parameterAllowed: false,
             action: new Action((params) => {
                 Terminal.GetUserInput("Type your name", (input) => {
-                    Terminal.ShowMessage(input)
-    
-                    let os = new Os();
-                    params.finish(Terminal);
-                    Terminal.Destroy()
+                    Terminal.ShowMessage(input);
+                    Terminal.ShowMessage("<br>Downloading Content - - - ");
+                    setTimeout(() => {
+                        Terminal.ShowMessage("done.")
+                        setTimeout(() => {
+                            let os = new Os();
+                            params.finish(Terminal);
+                            Terminal.Destroy()
+                        }, 500)
+                    }, 1000)
+                    
                 });
+            })
+        }   
+    },
+    (Terminal) => {
+        return {
+            key: "/parrot",
+            parameterAllowed: false,
+            action: new Action(async (params) => {
+                let currentFrame = params.parameterForCallback == undefined ? 0 : params.parameterForCallback;
+
+                const colorsOptions = [
+                    'red',
+                    'yellow',
+                    'green',
+                    'blue',
+                    'magenta',
+                    'cyan',
+                    'white'
+                ];
+
+                currentFrame = currentFrame+1 > 9 ? 0 : currentFrame+1;
+                Terminal.ClearScreen()
+                switch(currentFrame) {
+                    case 0: Terminal.ShowMessage(params.preloadedData[currentFrame]); break; 
+                    case 1: Terminal.ShowMessage(params.preloadedData[currentFrame]); break;
+                    case 2: Terminal.ShowMessage(params.preloadedData[currentFrame]); break;
+                    case 3: Terminal.ShowMessage(params.preloadedData[currentFrame]); break;
+                    case 4: Terminal.ShowMessage(params.preloadedData[currentFrame]); break;
+                    case 5: Terminal.ShowMessage(params.preloadedData[currentFrame]); break;
+                    case 6: Terminal.ShowMessage(params.preloadedData[currentFrame]); break;
+                    case 7: Terminal.ShowMessage(params.preloadedData[currentFrame]); break;
+                    case 8: Terminal.ShowMessage(params.preloadedData[currentFrame]); break;
+                    case 9: Terminal.ShowMessage(params.preloadedData[currentFrame]); break;
+                }
+                document.querySelector(':root').style.setProperty('--terminalColor', colorsOptions[Math.floor(Math.random() * colorsOptions.length-1)])
+                setTimeout(() => params.callback(currentFrame), 50)
+
+            }, () => {
+                return new Promise(async (res) => {
+                    var frame1response = await fetch('../Source/Extras/frames/0.txt')
+                    var frame1 = await frame1response.text()
+
+                    var frame2response = await fetch('../Source/Extras/frames/1.txt')
+                    var frame2 = await frame2response.text()
+
+                    var frame3response = await fetch('../Source/Extras/frames/2.txt')
+                    var frame3 = await frame3response.text()
+                    
+                    var frame4response = await fetch('../Source/Extras/frames/3.txt')
+                    var frame4 = await frame4response.text()
+
+                    var frame5response = await fetch('../Source/Extras/frames/4.txt')
+                    var frame5 = await frame5response.text()
+
+                    var frame6response = await fetch('../Source/Extras/frames/5.txt')
+                    var frame6 = await frame6response.text()
+
+                    var frame7response = await fetch('../Source/Extras/frames/6.txt')
+                    var frame7 = await frame7response.text()
+
+                    var frame8response = await fetch('../Source/Extras/frames/7.txt')
+                    var frame8 = await frame8response.text()
+
+                    var frame9response = await fetch('../Source/Extras/frames/8.txt')
+                    var frame9 = await frame9response.text()
+
+                    var frame0response = await fetch('../Source/Extras/frames/9.txt')
+                    var frame0 = await frame0response.text()
+                    res([frame1, frame2, frame3, frame4, frame5, frame6, frame7, frame8, frame9, frame0])
+                })
+            },() => {
+                console.log("here")
+                document.querySelector(':root').style.setProperty('--terminalColor', "white")
             })
         }   
     }

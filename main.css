@@ -152,7 +152,7 @@
     overflow-y: scroll;
     color: var(--terminalColor);
     background: black;
-    
+    white-space: pre;
 }
 .cmd{
     display: flex;

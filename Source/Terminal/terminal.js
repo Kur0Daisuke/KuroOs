@@ -1,10 +1,9 @@
+import Action from "./Action.js";
 /**
  */
 class Terminal{
     static _ActionLibrary;
     #terminalDiv;
-    #controlPressed;
-    #cpressed;
     #CommandHistory;
     #CopyHistory;
     /**
@@ -14,8 +13,8 @@ class Terminal{
     */
     constructor(terminalDiv) {
         this.#terminalDiv = terminalDiv;
-        this.#controlPressed = false;
-        this.#cpressed = false;
+        this.controlPressed = false;
+        this.cpressed = false;
         this.#CommandHistory = [{command:"", cursorPosition: 0}];
         this.#CopyHistory = "";
 
@@ -23,8 +22,30 @@ class Terminal{
         this.Input();
 
         document.title = "C:\\Users\\user\\cmd.exe";
-        window.addEventListener("keydown", this._TerminalKeyDownListener);
-        window.addEventListener("keyup", this._TerminalKeyUpListener);
+        window.addEventListener("keydown", (e) => {
+            switch(e.key){
+                case "Control":
+                    this.controlPressed = true;
+                    break;
+                case "c":
+                    this.cpressed = true;
+                    break;
+            }
+        });
+        window.addEventListener("keyup", (e) => {
+            switch(e.key){
+                case "c":
+                    if(this.controlPressed && this.cpressed && Action.IsOperating) {
+                        this._StopAction();
+                        console.log("stop")
+                    }
+                    this.cpressed = false;
+                    break;
+                case "Control":
+                    this.controlPressed = false;
+                    break;
+            }
+        });
     }
     Destroy() {
         let DestroyEvent = new CustomEvent("OnDestroy", {detail: this});
@@ -91,7 +112,7 @@ class Terminal{
                 action.action.Start("", div);
                 return;
             }else if(command.replace(/\s/g, "") == "") {
-                Terminal.Input();
+                this.Input();
                 return;
             }
         }
@@ -105,28 +126,6 @@ class Terminal{
         Action.IsOperating = false;
         this.ShowMessage("Stopped Operation")
         this.Input();
-    }
-    // KEY LISTENERS FOR CONTROL + C
-    _TerminalKeyUpListener(e) {
-        switch(e.key){
-            case "c":
-                if(this.#controlPressed && this.#cpressed && Action.IsOperating) this._StopAction();
-                this.#cpressed = false;
-                break;
-            case "Control":
-                this.#controlPressed = false;
-                break;
-        }
-    }
-    _TerminalKeyDownListener(e) {
-        switch(e.key){
-            case "Control":
-                this.#controlPressed = true;
-                break;
-            case "c":
-                this.#cpressed = true;
-                break;
-        }
     }
     IncreaseHeight() {
         this.#terminalDiv.style.height = `${Terminal._terminalDiv.style.height+150}%`
@@ -216,26 +215,26 @@ class Terminal{
                     startPosition = cursorPosition;
                     break;
                 case "c":
-                    if(this.#controlPressed) {
+                    if(this.controlPressed) {
                         this.#CopyHistory = command.slice(i,x)
                     }else appendText(e.key);
                     break;
                 case "x":
-                    if(this.#controlPressed) {
+                    if(this.controlPressed) {
                         this.#CopyHistory = command.slice(i,x)
                         command = command.slice(0, i) + command.slice(x, command.length)
                         AddCursor();
                     }else appendText(e.key);
                     break;
                 case "v":
-                    if(this.#controlPressed) {
+                    if(this.controlPressed) {
                         command = Terminal.insertAtIndex(command, this.#CopyHistory, cursorPosition);
                         cursorPosition+=this.#CopyHistory.length;
                         AddCursor();
                     }else appendText(e.key);
                     break;
                 case "a":
-                    if(this.#controlPressed) {
+                    if(this.controlPressed) {
                         startPosition = 0;
                         cursorPosition = command.length;
                         selected = true;
@@ -319,6 +318,10 @@ class Terminal{
         if(!params.doNotScroll) cmd.scrollIntoView(false);
         this.InputBoxHandler({inputBox, params})
     }
+    ClearScreen() {
+        this.#terminalDiv.innerHTML = ""
+    }
+
 }
 
 export default Terminal;
