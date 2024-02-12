@@ -1,16 +1,11 @@
 import Action from "./Action.js";
-/**
- */
+
 class Terminal{
     static _ActionLibrary;
     #terminalDiv;
     #CommandHistory;
     #CopyHistory;
-    /**
-     * 
-     * @param {*} terminalDiv - points to the main div where the terminal is
-     * @param {*} ActionLibrary - Action Library Class
-    */
+    
     constructor(terminalDiv) {
         this.#terminalDiv = terminalDiv;
         this.controlPressed = false;
@@ -29,16 +24,16 @@ class Terminal{
                     break;
                 case "c":
                     this.cpressed = true;
+                    if(this.controlPressed && this.cpressed && Action.IsOperating) {
+                        this._StopAction();
+                        console.log("stop")
+                    }
                     break;
             }
         });
         window.addEventListener("keyup", (e) => {
             switch(e.key){
                 case "c":
-                    if(this.controlPressed && this.cpressed && Action.IsOperating) {
-                        this._StopAction();
-                        console.log("stop")
-                    }
                     this.cpressed = false;
                     break;
                 case "Control":
@@ -51,21 +46,7 @@ class Terminal{
         let DestroyEvent = new CustomEvent("OnDestroy", {detail: this});
         window.dispatchEvent(DestroyEvent)
     }
-    /**
-     * 
-     * @param {*} message
-     * @param {function} callback
-     * @param {string} input - User input
-     * @description - Creates a input line and returns user input after pressing the Enter key
-     * @example
-     * () => { 
-     *     ...
-     *     Terminal.GetUserInput("__YOUR MESSAGE TO BE EMITTED__", function (input) {
-     *          // __ continue the program __
-     *     }) 
-     *     ... 
-     * }
-     */
+    
     GetUserInput(message, callback= () => {}) {
         this.ShowMessage(message);
         let inputBox = document.createElement('div');
@@ -77,19 +58,15 @@ class Terminal{
     static insertAtIndex(str, substring, index) {
         return str.slice(0, index) + substring + str.slice(index);
     }
-    /**
-     * 
-     * @param {*} message
-     * @description - Emits an message to the terminal
-     * @example
-     * () => { 
-     *     ...
-     *     Terminal.ShowMessage(..message here..) 
-     *     ... 
-     * }
-     */
+
     ShowMessage(message) {
-        this.#terminalDiv.innerHTML += message;
+        let div = document.createElement("span")
+        div.innerHTML += message;
+        this.#terminalDiv.appendChild(div);
+        return div;
+    }
+    ScrollToView() {
+        this.#terminalDiv.scrollIntoView(true)
     }
     ReturnError(command, cursorPosition, parameterI, terminal) {
         terminal.ShowMessage(`'${command.slice(0, parameterI)}' is not recognized as an internal or external command,<br> operable program or batch file<br><br>`);
@@ -97,28 +74,47 @@ class Terminal{
     }
     // __ ENTER KEY HANDLER ___
     CheckCommand(command, cursorPosition, div, callback) {
-        let parameterI = command.length;
-        for(let x = 0; x < command.length; x++) {
-            if(command[x] == " ") {parameterI = x; break;}
+        let cmd = "", options = [], args = [];
+
+        //Extract cmd, options, and arguments
+        for(let i = 0; i < command.length; i++) {
+            if(cmd != "" && command[i] == " " && command[i+1] !== "-") {
+                let arg = "";
+                for(let x = i+1; x < command.length; x++) {
+                    if(command[x] !== " ") arg += command[x];
+                    else break;
+                }
+                args.push(arg)
+            }else if(cmd != "" && command[i] == "-") {
+                let option = "";
+                for(let x = i; x < command.length; x++) {
+                    if(command[x] !== " ") option += command[x];
+                    else break;
+                }
+                i+=option.length-1;
+                options.push(option)
+            }else if(cmd == "" && command[i] == " ") {
+                cmd = command.slice(0,i);
+                i -= 1;
+            }else if(cmd == "" && i == command.length-1) {
+                cmd = command.slice(0,i+1);
+            }
         }
+        this.#CommandHistory.push({command: command, cursorPosition: cursorPosition});
+        // run the command
         for(let i = 0; i < Terminal._ActionLibrary.length; i++) {
             let action = Terminal._ActionLibrary[i](this);
-            if(action.parameterAllowed) {
-                if(command.slice(0, parameterI) == action.key) {
-                    action.action.Start(command.slice(parameterI+1,command.length), div);
-                    return;
-                }
-            }else if(command.slice(0, parameterI) == action.key && !action.parameterAllowed){
-                action.action.Start("", div);
+            if(cmd == action.key){
+                action.action.Start({option: options, argument: args});
                 return;
-            }else if(command.replace(/\s/g, "") == "") {
+            }else if(command.replace(/\s/g, "") == "") {;
                 this.Input();
                 return;
             }
         }
 
         this.#CommandHistory.push({command: command, cursorPosition: cursorPosition});
-        callback(command, cursorPosition, parameterI, this);
+        callback(command, cursorPosition, /*parameterI*/command.length, this);
     }
     // __ STOP THE OPERATION
     _StopAction() {
@@ -212,7 +208,6 @@ class Terminal{
                     break;
                 case "Shift":
                     selecting = true;
-                    startPosition = cursorPosition;
                     break;
                 case "c":
                     if(this.controlPressed) {
@@ -223,6 +218,7 @@ class Terminal{
                     if(this.controlPressed) {
                         this.#CopyHistory = command.slice(i,x)
                         command = command.slice(0, i) + command.slice(x, command.length)
+                        cursorPosition = i;
                         AddCursor();
                     }else appendText(e.key);
                     break;
@@ -243,7 +239,27 @@ class Terminal{
                     }else appendText(e.key);
                     break;
                 //___ Ignore Characters __
-                case "Enter":
+                case "AudioVolumeUp":
+                    break;
+		case "AudioVolumeDown":
+                    break;
+		case "AudioVolumeMute":
+                    break;
+		case "Alt":
+                    break;
+		case "Tab":
+                    break;
+		case "End":
+                    break;    
+		case "Home":
+                    break;
+		case "PageUp":
+                    break;
+		case "PageDown":
+                    break;
+		case "CapsLock":
+                    break;
+		case "Enter":
                     break;
                 case "ArrowDown":
                     break;
@@ -252,6 +268,7 @@ class Terminal{
                 // ___ ELSE WE DO THIS __
                 default:
                     appendText(e.key);
+                    startPosition = cursorPosition;
             }
         }
         // __ Pressing Handler ___
@@ -292,25 +309,13 @@ class Terminal{
             delete this;
         })
     }
-    // ____ INPUT LINE ____
-    /**
-     * 
-     * @param {*} params - {autoCommand, doNotScroll}
-     * @description new input line 
-     * @example
-     * () => { 
-     *     ...
-     *     Terminal.Input(.. {"" // <-- autoCommand, false || true // <-- ToScrollOrNot(closed parameter) }) 
-     *     ... 
-     * }
-     * //parameters are not necessary for normal useage
-     */
+    
     Input(params={autoCommand:``, doNotScroll: false}) {
         //____ ADDING INPUT DIV _____
         let cmd = document.createElement("div");
         cmd.classList.add("cmd");
         cmd.innerHTML = `
-            <span class="location"><:C/Users/user></span>&nbsp;<div class="input"></div></div>
+            <span class="location">MainTerminal:-$</span>&nbsp;<div class="input"></div></div>
         `
         this.#terminalDiv.appendChild(cmd);
         let inputBox = cmd.querySelector(".input");

@@ -12,5 +12,4 @@ class Terminal{
 }
 
 TerminalClass._ActionLibrary = new ActionLibraryClass().GetActions;
-
 export { Terminal }

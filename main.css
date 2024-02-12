@@ -20,6 +20,7 @@
     --highlightColor:#FFED00;
     --taskBarColor:rgba(255, 255, 255, 0.1);
     --terminalColor: white;
+    --locationColor: red;
 }
 
 .os{
@@ -138,60 +139,8 @@
 
 /* ____ TERMINAL ____ */
 
-.terminal {
-    /* to change  */
-    /* display: none; */
-    
-    position: relative;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    max-height: 100%;
-    padding: 15px;
-    overflow-y: scroll;
-    color: var(--terminalColor);
-    background: black;
-    white-space: pre;
-}
-.cmd{
-    display: flex;
-    flex-direction: row;
-}
-.input{
-    display: flex;
-    color: var(--terminalColor);
-    white-space: pre;
-}
-.location{
-    color: var(--terminalColor);
-}
-.cursor{
-    width: 1px;
-    height: 2px;
-}
 
-.cursor::after{
-    content: '';
-    animation: cursor 1s infinite;
-}
-.selected{
-    background: blue;
-}
-.cursor.stop::after{
-    display: none;
-}
-.space{
-    color: black;
-}
 
-@keyframes cursor{
-    from {content:''}
-    to {content: '▃'}
-}
-
-.appWindow{
-    position: absolute;
-    width: 50%;
-    height: 100%;
+.Terminal {
+position: absolute; top:0;left:0; width: 100%; height: 100%
 }

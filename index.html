@@ -6,34 +6,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portfolio</title>
     <link rel="stylesheet" href="main.css">
+    <script defer type="module" src="Source/components.js"></script>      
 </head>
 <body>
-    <div class="os">
+    <!-- <div class="os">
         <section class="desktop desktopBottom">
             <div class="folderSpace">
-                <!-- <div class="folder">
+                <div class="folder">
                     <ion-icon name="desktop-outline"></ion-icon>
                     <p>My PC</p>
-                </div> -->
+                </div>
             </div>
         </section>
         <div class="taskBar taskBarBottom">
             <ion-icon name="file-tray-outline"></ion-icon>
             <div class="recentTray">
-                <!-- <ion-icon name="desktop-outline" title="PC"></ion-icon>
-                <ion-icon name="globe-outline" class="opened"></ion-icon> -->
+                <ion-icon name="desktop-outline" title="PC"></ion-icon>
+                <ion-icon name="globe-outline" class="opened"></ion-icon>
             </div>
             <ion-icon name="terminal-outline"></ion-icon>
         </div>
-    </div>
+    </div> -->
     
-    <div class="startTerminal" style="position: absolute; top:0;left:0; width: 100%; height: 100%">
-        <div class="terminal"></div>
-    </div>
     
+    
+    <terminal-block class="Terminal"></terminal-block>
 
     <script defer type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
     <script defer nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    
     <script defer type="module" src="main.js"></script>
 </body>
 </html>

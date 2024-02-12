@@ -1,51 +1,47 @@
 import Action from "./Action.js";
-import Os from "../Os/Os.js";
 
 const DEFAULT_ACTIONS = [
     (Terminal) => {
         return {
             key: "echo",
-            parameterAllowed: true,
-            action: new Action((params) => {
-                Terminal.ShowMessage(params.parameter)
+            action: new Action({main: (params) => {
+                Terminal.ShowMessage(params.argument.join(" "))
                 params.finish(Terminal);
-            })
+            }}),
+	    description: "\n\necho out the text you want! ($ variables doesn't work)\n"
         }
     },
     (Terminal) => {
         return {
             key: "/help",
-            parameterAllowed: false,
-            action: new Action((params) => {
+            action: new Action({main: (params) => {
                 Terminal.ShowMessage(`Available Commands <br> ${DEFAULT_ACTIONS.map(e => 
                     `  
-                    ${e.key}$ - 
-                    ${e.description == undefined ? "" : e.description} <br>
+    ${e().key} - ${e().description == undefined ? "" : e().description} <br>
                     `
                 ).join("")}<br>`)
                 params.finish(Terminal);
-            }),
-            description: "this command"
+            }}),
+            description: "\n\nthis command\n"
         }
     },
     (Terminal) => {
         return {
             key: "date",
-            parameterAllowed: false,
-            action: new Action((params) => {
+            action: new Action({main: (params) => {
                 Terminal.ShowMessage(new Date())
                 params.finish(Terminal);
-            })
+            }}),
+	    description: "\n\nreturns the current date.\n"
         }   
     },
     (Terminal) => {
         return {
             key: "color",
-            parameterAllowed: true,
-            action: new Action((params) => {
+            action: new Action({main: (params) => {
                 // Terminal.IncreaseHeight()
-                params.div.scrollIntoView(true)
-                if(params.parameter == "?") {
+                Terminal.ScrollToView();
+                if(params.argument.includes("?")) {
                     Terminal.ShowMessage(`
                         Sets the default console foreground and background colors.
                         <br><br>
@@ -78,12 +74,12 @@ const DEFAULT_ACTIONS = [
                         params.finish(Terminal);
                         return;
                     }
-                    if(params.parameter == 0) {
+                    if(params.argument[0].toString() == 0) {
                         Terminal.GetUserInput("Are you really sure that you could see in this pitch black color? (y/n)", 
                         (input) => {
                             if(input == "y") {
                                 params.finish(Terminal);
-                                document.querySelector(':root').style.setProperty('--terminalColor', TerminalColors[parseInt(params.parameter)])
+                                document.querySelector(':root').style.setProperty('--terminalColor', TerminalColors[parseInt(params.argument[0])])
                             }else {
                                 Terminal.ShowMessage(`I'll accept that "No". Wise choice you made Sir.`)
                                 params.finish(Terminal);
@@ -91,39 +87,20 @@ const DEFAULT_ACTIONS = [
                         });
                     }else {
                         params.finish(Terminal);
-                        document.querySelector(':root').style.setProperty('--terminalColor', TerminalColors[parseInt(params.parameter)])
+                        document.querySelector(':root').style.setProperty('--terminalColor', TerminalColors[parseInt(params.argument[0])])
                     }
                     
-            })
-        }   
-    },
-    (Terminal) => {
-        return {
-            key: "/install",
-            parameterAllowed: false,
-            action: new Action((params) => {
-                Terminal.GetUserInput("Type your name", (input) => {
-                    Terminal.ShowMessage(input);
-                    Terminal.ShowMessage("<br>Downloading Content - - - ");
-                    setTimeout(() => {
-                        Terminal.ShowMessage("done.")
-                        setTimeout(() => {
-                            let os = new Os();
-                            params.finish(Terminal);
-                            Terminal.Destroy()
-                        }, 500)
-                    }, 1000)
-                    
-                });
-            })
+            }}),
+	    description: "\n\nChange da color (beta)\n"
         }   
     },
     (Terminal) => {
         return {
             key: "/parrot",
-            parameterAllowed: false,
-            action: new Action(async (params) => {
-                let currentFrame = params.parameterForCallback == undefined ? 0 : params.parameterForCallback;
+            description: "creates an rgb parrot",
+            action: new Action({main: (params) => {
+                
+                let currentFrame = params.parameterPassing == undefined ? 0 : params.parameterPassing;
 
                 const colorsOptions = [
                     'red',
@@ -137,59 +114,184 @@ const DEFAULT_ACTIONS = [
 
                 currentFrame = currentFrame+1 > 9 ? 0 : currentFrame+1;
                 Terminal.ClearScreen()
-                switch(currentFrame) {
-                    case 0: Terminal.ShowMessage(params.preloadedData[currentFrame]); break; 
-                    case 1: Terminal.ShowMessage(params.preloadedData[currentFrame]); break;
-                    case 2: Terminal.ShowMessage(params.preloadedData[currentFrame]); break;
-                    case 3: Terminal.ShowMessage(params.preloadedData[currentFrame]); break;
-                    case 4: Terminal.ShowMessage(params.preloadedData[currentFrame]); break;
-                    case 5: Terminal.ShowMessage(params.preloadedData[currentFrame]); break;
-                    case 6: Terminal.ShowMessage(params.preloadedData[currentFrame]); break;
-                    case 7: Terminal.ShowMessage(params.preloadedData[currentFrame]); break;
-                    case 8: Terminal.ShowMessage(params.preloadedData[currentFrame]); break;
-                    case 9: Terminal.ShowMessage(params.preloadedData[currentFrame]); break;
+                if(params.preloadedData == undefined) {
+                    Terminal.ShowMessage("Loading")
+                }else {
+                    Terminal.ShowMessage(params.preloadedData[currentFrame]);
                 }
+                
                 document.querySelector(':root').style.setProperty('--terminalColor', colorsOptions[Math.floor(Math.random() * colorsOptions.length-1)])
                 setTimeout(() => params.callback(currentFrame), 50)
 
-            }, () => {
+            }, 
+            //____ Load Frames _____
+	    preload: () => {
                 return new Promise(async (res) => {
-                    var frame1response = await fetch('../Source/Extras/frames/0.txt')
-                    var frame1 = await frame1response.text()
-
-                    var frame2response = await fetch('../Source/Extras/frames/1.txt')
-                    var frame2 = await frame2response.text()
-
-                    var frame3response = await fetch('../Source/Extras/frames/2.txt')
-                    var frame3 = await frame3response.text()
+                    let frames = []
+                    for (let i = 0; i < 10; i++) {
+                        let frameresponse = await fetch(`../Source/Extras/frames/${i}.txt`)
+                        let frame = await frameresponse.text()
+                        frames.push(frame)
+                    }
                     
-                    var frame4response = await fetch('../Source/Extras/frames/3.txt')
-                    var frame4 = await frame4response.text()
-
-                    var frame5response = await fetch('../Source/Extras/frames/4.txt')
-                    var frame5 = await frame5response.text()
-
-                    var frame6response = await fetch('../Source/Extras/frames/5.txt')
-                    var frame6 = await frame6response.text()
-
-                    var frame7response = await fetch('../Source/Extras/frames/6.txt')
-                    var frame7 = await frame7response.text()
-
-                    var frame8response = await fetch('../Source/Extras/frames/7.txt')
-                    var frame8 = await frame8response.text()
-
-                    var frame9response = await fetch('../Source/Extras/frames/8.txt')
-                    var frame9 = await frame9response.text()
-
-                    var frame0response = await fetch('../Source/Extras/frames/9.txt')
-                    var frame0 = await frame0response.text()
-                    res([frame1, frame2, frame3, frame4, frame5, frame6, frame7, frame8, frame9, frame0])
+                    res(frames)
                 })
-            },() => {
-                console.log("here")
+            },
+            // ___ If Stopped Abruptly ____ 
+	    stopCallback: () => {
                 document.querySelector(':root').style.setProperty('--terminalColor', "white")
-            })
+            }}),
+	    description: "\n\nYEAHHHHH BABYYYYYYYYYYYYYYYYYYYY DANCING PARROT!"
         }   
+    },
+    (Terminal) => {
+        return {
+            key: "clear",
+            action: new Action({main:(params) => {
+                Terminal.ClearScreen();
+                params.finish(Terminal)
+            }}),
+	    description: "\n\nClears this terminal for a fresh look.\n"
+        }
+    },
+    (Terminal) => {
+        return {
+            key: "cowsay",
+            action: new Action({main: (params) => {
+                if(params.option.length > 1) {
+                    params.finish(Terminal);
+                    return
+                }
+                let variants = {
+                    "-b": `
+   \\   ^__^
+    \\  (==)\\_______
+       (__)\\       )\\/\\
+            ||----w |
+            ||     ||`,
+
+                    "": `
+   \\   ^__^
+    \\  (oo)\\_______
+       (__)\\       )\\/\\
+            ||----w |
+            ||     ||`,
+                    "-d": `
+   \\   ^__^
+    \\  (xx)\\_______
+       (__)\\       )\\/\\
+        U   ||----w |
+            ||     ||`,
+                    "-p": `
+   \\   ^__^
+    \\  (@@)\\_______
+       (__)\\       )\\/\\
+            ||----w |
+            ||     ||`,
+                    "-s": `
+   \\   ^__^
+    \\  (**)\\_______
+       (__)\\       )\\/\\
+        U   ||----w |
+            ||     ||`,
+                    "-y": `
+   \\   ^__^
+    \\  (..)\\_______
+       (__)\\       )\\/\\
+            ||----w |
+            ||     ||`,
+                    "tux": `
+   \\
+    \\
+            .--.
+           |o_o |
+           |:_/ |
+          //   \\ \\
+         (|     | )
+        /'\\_   _/'\\
+        \\___)=(___/
+                    `,
+                    "dragon": `
+   \\                      / \\  //\\
+    \\      |\\___/|      /   \\//  \\
+           /0  0  \\__  /    //  | \\ \\
+         /     /  \\/_/    //   |  \\  \\
+        @_^_@'/   \\/_   //    |   \\   \\
+         <b style='color:orange'>//</b>_^_/     \\/_ //     |    \\    \\
+        <b style='color:orange'>( //)</b> |        \\///      |     \\     \\
+      <b style='color:orange'>( / /)</b> _|_ /   )  //       |      \\     _\\
+    <b style='color:orange'>( // /)</b> '/,_ _ _/  ( ; -.    |    _ _\\.-~    .-~~~^-.
+  <b style='color:orange'>(( / / ))</b> '-{        _      '-.|.-~-.         .~        '.
+ <b style='color:orange'>(( // / ))</b>  '/\\     /                 ~-. _ .-~   .-~^-.   \\
+ <b style='color:orange'>(( /// ))</b>      '.   {            }                /      \\   \\
+  <b style='color:orange'>(( / ))</b>     .----~-.\\       \\-'                .~         \\ '.\\^-.
+             ///.----..>        \\             _ -~           '.  ^-'  ^-_
+               ///-._ _ _ _ _ _ _}^ - - - - ~                   ~-- ,.-~
+                                                                /.-~ 
+                    `
+                }
+
+                let arg = "", found = false;
+                for(let i = 0; i < params.argument.join(" ").length; i++) {
+                    if(params.argument.join(" ")[i] == `"` && !found) {
+                        found = true;
+                        continue
+                    }else if(found && params.argument.join(" ")[i] !== `"`) {
+                        arg += params.argument.join(" ")[i];
+                    }if(found && params.argument.join(" ")[i] == `"`) break;
+                }
+                let textDiv, text=arg.split(" "), textindex = 0;
+		
+		if(arg == ""){
+		    Terminal.ShowMessage("cow out.");
+		    params.finish(Terminal);
+		    return;
+		}
+
+                for(let i = 0; i < arg.length+4; i++) Terminal.ShowMessage("_");
+                Terminal.ShowMessage("\n");
+                textDiv = Terminal.ShowMessage("< ");
+                Terminal.ShowMessage("\n");
+                for(let i = 0; i < arg.length+4; i++) Terminal.ShowMessage("-");
+
+                const utterance = new SpeechSynthesisUtterance(arg);
+
+                // Select a voice
+                const voices = speechSynthesis.getVoices();
+                utterance.voice = voices[0];
+                speechSynthesis.pitch = 1;
+
+                utterance.onboundary = () => {
+                    if(text[textindex] == undefined) {
+                        textDiv.innerHTML += ">";
+                        params.finish(Terminal);
+                        return;
+                    }
+                    textDiv.innerHTML += text[textindex] + " ";
+                    textindex++;
+                }
+
+		console.log(params.argument.join(" "))
+
+                if(params.option.join(" ") == "-f" && params.argument.join(" ").includes("tux")) {
+                    Terminal.ShowMessage(`
+                ${variants["tux"]}
+                `)
+                }else if(params.option.join(" ") == "-f" && params.argument.join(" ").includes("dragon")) {
+                    speechSynthesis.pitch = 2;
+                    Terminal.ShowMessage(`
+                ${variants["dragon"]}
+                `)
+                }else {
+                    Terminal.ShowMessage(`
+                ${variants[params.option.join(" ")]}
+                `)
+                }
+                
+                speechSynthesis.speak(utterance);
+            }}),
+	    description: `\n\nCowsay command type ~ cowsay "{your text here}" ~ to make a cow that speaks\nexperiement modifiers such as ~ -b, -d, -p, -s, -y ~ for extra appearence.\n by also typing ~ cowsay -f {tux or dragon} "Your text" ~ can make a huge difference.`
+        }
     }
 ]
 

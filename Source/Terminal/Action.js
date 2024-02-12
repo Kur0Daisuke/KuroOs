@@ -19,7 +19,7 @@ class Action{
     static IsOperating = false;
     static ForceStop = false;
 
-    constructor(main, preload=() => {}, stopCallback=() => {}) {
+    constructor({main, preload=() => {}, stopCallback=() => {}}) {
         this.Main = main;
         this.preload = preload;
         this.stopCallback = stopCallback;
@@ -33,7 +33,7 @@ class Action{
         Action.IsOperating = false;
         Terminal.Input({autoCommand: "", doNotScroll: false});
     }
-    Start(parameter="", div, parameterForCallback=undefined) {
+    Start({option, argument, parameterPassing=undefined}) {
         Action.IsOperating = true;
         if(Action.ForceStop) {
             Action.ForceStop = false;
@@ -41,15 +41,15 @@ class Action{
             return;
         }
         this.Main({
-            callback: (parameterForCallback) => {
-                this.Start("", null, parameterForCallback)
+            callback: (parameterPassing) => {
+                this.Start({option, argument, parameterPassing})
             },
             finish: (terminal) => {
                 this.Done(terminal);
             }, 
-            parameter,
-            div,
-            parameterForCallback,
+            option,
+            argument,
+            parameterPassing,
             preloadedData: this.preloadedData
         });
     }
